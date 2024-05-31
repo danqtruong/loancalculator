@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Loan Calculator</title>
+<style>
+    /* Some basic styling for the form */
+    .container {
+        display: flex;
+    }
+    #loanDetailsForm, #additionalCostsForm {
+        margin: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        flex: 1;
+        max-width: 300px;
+    }
+    fieldset {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    legend {
+        font-weight: bold;
+    }
+    input[type="number"] {
+        width: calc(100% - 20px);
+        margin-bottom: 10px;
+    }
+    input[type="button"] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #additionalCostsResult {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <form id="loanDetailsForm">
+        <fieldset>
+            <legend>Loan Details</legend>
+            <label for="principal">Loan Amount ($):</label>
+            <input type="number" id="principal" required><br>
+
+            <label for="downPayment">Down Payment ($):</label>
+            <input type="number" id="downPayment" required><br>
+
+            <label for="annualInterestRate">Annual Interest Rate (%):</label>
+            <input type="number" id="annualInterestRate" step="0.01" required><br>
+
+            <label for="years">Loan Term (Years):</label>
+            <input type="number" id="years" required><br>
+
+            <input type="button" value="Calculate Loan" onclick="calculateLoan()">
+        </fieldset>
+
+	<div id="LoanDetailsResult"></div>
+    </form>
+
+    <form id="additionalCostsForm">
+        <fieldset>
+		<legend>Loan Details</legend>
+                <label for="monthlyPayment">Monthly Payment ($):</label>
+                <input type="number" id="monthlyPayment" required><br>
+                <label for="propertyTax">Property Tax ($):</label>
+                <input type="number" id="propertyTax" required><br>
+                <label for="insurance">Insurance ($):</label>
+                <input type="number" id="insurance" required><br>
+                <label for="hoa">HOA Fees ($):</label>
+                <input type="number" id="hoa" required><br>
+
+		<input type="button" value="Calculate Monthly Costs" onclick="calculateAdditionalCosts()">
+        </fieldset>
+
+	<div id="additionalCostsResult"></div>
+    </form>
+	
+	
+
+</div>
+
+<script>
+    function calculateLoan() {
+        // Get input values for Loan Details
+        const principal = parseFloat(document.getElementById('principal').value);
+        const downPayment = parseFloat(document.getElementById('downPayment').value);
+        const annualInterestRate = parseFloat(document.getElementById('annualInterestRate').value);
+        const years = parseInt(document.getElementById('years').value);
+        
+        // Calculate total loan amount
+        const totalLoanAmount = principal - downPayment;
+        
+        // Call calculateHomeLoan function
+        const result = calculateHomeLoan(totalLoanAmount, annualInterestRate, years);
+        
+        // Display result for Loan Details
+        document.getElementById('LoanDetailsResult').innerHTML = `
+            <p>Monthly Payment: $${result.monthlyPayment.toLocaleString()}</p>
+            <p>Total Payment: $${result.totalPayment.toLocaleString()}</p>
+            <p>Total Interest: $${result.totalInterest.toLocaleString()}</p>
+        `;
+
+        //Populate the "Monthly Payment Amount" field with the calculated value
+        document.getElementById('monthlyPayment').value = result.monthlyPayment.toLocaleString();
+    }
+
+    function calculateAdditionalCosts() {
+        // Get input values for Additional Costs
+        const payment = parseFloat(document.getElementById('monthlyPayment').value);
+        const propertyTax = parseFloat(document.getElementById('propertyTax').value);
+        const insurance = parseFloat(document.getElementById('insurance').value);
+        const hoa = parseFloat(document.getElementById('hoa').value);
+        
+        // Calculate total additional costs
+        const totalAdditionalCosts = payment + propertyTax + insurance + hoa;
+        
+        // Display result for Additional Costs
+        document.getElementById('additionalCostsResult').innerHTML = `
+            <p>Total Monthly Costs: $${totalAdditionalCosts.toLocaleString()}</p>
+        `;
+    }
+
+    // Function to calculate home loan
+    function calculateHomeLoan(principal, annualInterestRate, years) {
+        const monthlyInterestRate = annualInterestRate / 12 / 100;
+        const numberOfPayments = years * 12;
+
+        const monthlyPayment = Math.round((principal * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -numberOfPayments)));
+        const totalPayment = Math.round(monthlyPayment * numberOfPayments);
+        const totalInterest = Math.round(totalPayment - principal);
+
+        return {
+            monthlyPayment: monthlyPayment,
+            totalPayment: totalPayment,
+            totalInterest: totalInterest
+        };
+    }
+</script>
+
+</body>
+</html>
